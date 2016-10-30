@@ -165,7 +165,7 @@ mov ra10, ra0; mov rb10, rb1
 mov rb14, 64
 # rb14 = outputShift
 
-# Compute VPM configuration.  We always write one horizontal 32-bit line at the
+# Compute VPM configuration. We always write one horizontal 32-bit line at the
 # offset indicated by rb30=QpuId*VPM_ROWS.
 mov r1, vpm_setup(1, 1, h32(0, 0))
 or ra26, rb30, r1; mov r3, unif
@@ -181,6 +181,9 @@ mov r1, vdw_setup_1(0)
 # In fact, the loop begins here. The first three instructions are duplicated:
 # here, and after the branch since three instructions after the branch are
 # always executed.
+#
+# The next two instructions continue the computation of the DMA config on the
+# ADD side.
 #                            We start the computation loop on the MUL side
 shl r2, r0, 6               ; fmul r0, ra0, ra0
 or ra28, r2, r1             ; fmul r1, rb1, rb1
