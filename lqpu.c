@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include <dlfcn.h>
+#include <stdio.h>
 
 #include "lqpu.h"
 #include "mailbox.h"
@@ -199,6 +200,41 @@ lqpu_execute(LQPUBase* base, unsigned vc_msg, unsigned num_qpus)
     // No flush, timeout after 2000 ms.
     return execute_qpu(base->mb, num_qpus, vc_msg, 1, 2000);
 #endif
+}
+
+void
+lqpu_stats_enable(LQPUBase* base)
+{
+    base->peri[V3D_PCTRS(0)] = 20;
+    base->peri[V3D_PCTRS(1)] = 21;
+    base->peri[V3D_PCTRS(2)] = 22;
+    base->peri[V3D_PCTRS(3)] = 23;
+    base->peri[V3D_PCTRS(4)] = 13;
+    base->peri[V3D_PCTRS(5)] = 16;
+    base->peri[V3D_PCTRS(6)] = 28;
+    base->peri[V3D_PCTRS(7)] = 29;
+    base->peri[V3D_PCTRS(8)] = 26;
+    base->peri[V3D_PCTRS(9)] = 27;
+    base->peri[V3D_PCTRE] = 0x800003ff;
+    base->peri[V3D_PCTRC] = 0x000003ff;
+}
+
+void
+lqpu_stats_print(LQPUBase* base)
+{
+    float icacheHits = (float) base->peri[V3D_PCTR(0)];
+    float icacheMisses = (float) base->peri[V3D_PCTR(1)];
+    float ucacheHits = (float) base->peri[V3D_PCTR(2)];
+    float ucacheMisses = (float) base->peri[V3D_PCTR(3)];
+    float l2ccacheHits = (float) base->peri[V3D_PCTR(6)];
+    float l2ccacheMisses = (float) base->peri[V3D_PCTR(7)];
+    printf("PerfCtr ICACHE_MISS_RATE     %f\n", icacheMisses / (icacheHits + icacheMisses));
+    printf("PerfCtr UCACHE_MISS_RATE     %f\n", ucacheMisses / (ucacheHits + ucacheMisses));
+    printf("PerfCtr L2C_CACHE_MISS_RATE  %f\n", l2ccacheMisses / (l2ccacheHits + l2ccacheMisses));
+    printf("PerfCtr QPU_CYC_IDLE         %u\n", base->peri[V3D_PCTR(4)]);
+    printf("PerfCtr QPU_CYC_INSTR        %u\n", base->peri[V3D_PCTR(5)]);
+    printf("PerfCtr VPM_VDW_STALL_CYC    %u\n", base->peri[V3D_PCTR(8)]);
+    printf("PerfCtr VPM_VCD_STYLL_CYC    %u\n", base->peri[V3D_PCTR(9)]);
 }
 
 void

@@ -191,6 +191,8 @@ mandel_qpu_init(MandelQPUData* data, const MandelArgs* margs)
         exit(-1);
     }
 
+    lqpu_stats_enable(base);
+
     memcpy(ptr.arm.uptr, gpu_code, (size_t) gpu_code_size);
     unsigned vc_code = lqpu_ptr_add(&ptr, ((size_t) gpu_code_size + 0xf) & ~0xf);
 
@@ -250,6 +252,7 @@ static
 void
 mandel_qpu_fini(MandelQPUData* data)
 {
+    lqpu_stats_print(data->base);
     lqpu_release(data->base);
     mbox_close(data->mb);
     data->mb = -1;
