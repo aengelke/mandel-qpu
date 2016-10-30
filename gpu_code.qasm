@@ -87,12 +87,12 @@
 #
 # Registers suffixed with [] are restored for every block.
 #      Register File A           Register File B
-# 0     Re[=ReC]                  MaxValue
+# 0     Re[=ReC]                  .
 # 1     .                         Im[=ImC]
 # 2     Iters[=MaxIters]          MaxIters
 # 3     .                         .
 # 4     Addend[=1]                .
-# 5     ConstInt 31               .
+# 5     MaxValue                  .
 # 6     StepSize*16               StepSize
 # 7     .                         .
 # 8     .                         .
@@ -146,24 +146,21 @@ mov rb2, unif; fmul ra6, r0, 16.0
 # ra6 = 16.0 * stepSize
 # r0 = stepSize, r1 = elementIndex * stepSize, ra0 = re, rb1 = im, *rb2 = maxIters
 
-fadd ra0, ra0, r1; mov rb0, unif
+mov ra5, unif
+fadd ra0, ra0, r1
 # DROP r1 = elementIndex * stepSize
-# r0 = stepSize, *ra0 = reStep, rb1 = im, *rb0 = maxValue, rb2 = maxIters
+# r0 = stepSize, *ra0 = reStep, rb1 = im, *ra5 = maxValue, rb2 = maxIters
 
 mov rb6, r0; mov ra2, rb2
 # DROP r0 = stepSize
-# ra0 = reStep, rb1 = im, *rb6 = stepSize, rb0 = maxValue, rb2 = maxIters, *ra2 = iters
+# ra0 = reStep, rb1 = im, *rb6 = stepSize, ra5 = maxValue, rb2 = maxIters, *ra2 = iters
 
 mov ra4, 1
-# ra0 = reStep, rb1 = im, rb6 = stepSize, rb0 = maxValue, rb2 = maxIters, ra2 = iters, *ra4 = addend
+# ra0 = reStep, rb1 = im, rb6 = stepSize, ra5 = maxValue, rb2 = maxIters, ra2 = iters, *ra4 = addend
 
 # Store reC and imC
 mov ra10, ra0; mov rb10, rb1
-# ra0 = reStep, rb1 = im, rb6 = stepSize, rb0 = maxValue, rb2 = maxIters, ra2 = iters, ra4 = addend, *ra10 = reC, *rb10 = imC
-
-mov ra5, 31
-# ra0 = reStep, rb6 = stepSize, ra10 = reC
-# rb0 = maxValue, rb1 = im, rb2 = maxIters, ra2 = iters, ra4 = addend, *ra5 = 31, rb10 = imC
+# ra0 = reStep, rb1 = im, rb6 = stepSize, ra5 = maxValue, rb2 = maxIters, ra2 = iters, ra4 = addend, *ra10 = reC, *rb10 = imC
 
 mov rb14, 64
 # rb14 = outputShift
@@ -198,16 +195,13 @@ fadd r3, r0, r1; fmul r2, ra0, rb1
 
 :loop
 
-fsub r3, r3, rb0
-# r0 = re2, r1 = im2, r2 = reim, r3 = (re2 + im2) - maxValue
+fsub.setf -, r3, ra5; fmul r2, r2, 2.0
+# r0 = re2, r1 = im2, r2 = r * reim, flags = (re2 + im2) - maxValue
 
-shr r3, r3, ra5; fmul r2, r2, 2.0
-# r0 = re2, r1 = im2, r2 = 2 * reim, r3 = (re2 + im2) - maxValue < 0
-
-and.setf ra4, ra4, r3
+and ra4.nn, ra4, 0
 # ra4 = addend & continue
 
-brr.allz -, r:loopExit
+brr.allnn -, r:loopExit
 # No need for NOPs here, since we don't care about the next two instructions
 # anyway. The third instruction is also not relevant since ra4 is known to be
 # zero if it would be relevant.

@@ -8,11 +8,11 @@ The code for the host processor (ARM) is mainly contained in the `qou_mandel.c` 
 If the NetCDF header files are installed, `make` should be sufficient. Depending on the distribution of the NetCDF package, it might be required to use `CC=mpicc` for the compilation. The code has been tested with the Raspberry Pi 2.
 
 ### Performance
-Running times for a resolution of 1920 x 1080 in the range of `-2,2;-1.125,1.125` with 100,000 iterations. The Raspberry Pi is not overclocked, i.e. the ARM core is clocked at 900 MHz and the GPU at 250 MHz.
+Running times for a resolution of 1920 x 1080 in the range of `-2,2;-1.125,1.125` with 100,000 iterations and a maximum distance of 2 (implies that `maxValue` is 4). The Raspberry Pi is not overclocked, i.e. the ARM core is clocked at 900 MHz and the GPU at 250 MHz.
 
 | Method | Running Time |
 | ------ | ------------ |
 | ARM, single-core, scalar | 1046.365 seconds |
 | ARM NEON, single-core, 4-lane SIMD | 409.827 seconds |
 | ARM NEON, 4 cores (OpenMP, dynamic scheduling), 4-lane SIMD | 104.036 seconds |
-| VideoCore IV, 12 QPUs, 16-lane SIMD | 37.151 seconds |
+| VideoCore IV, 12 QPUs, 16-lane SIMD | 33.781 seconds |
