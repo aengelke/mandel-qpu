@@ -5,7 +5,10 @@ This repository contains the code to compute the Mandelbrot set on the GPU of th
 The code for the host processor (ARM) is mainly contained in the `qpu_mandel.c` file, which basically calls the QPU code for each twelve lines. The GPU code is in the file `gpu_code.qasm`, which can be compiled with the [vc4asm macro assembler](http://maazl.de/project/vc4asm/doc/). For convenience, the compiled code is provided in the `gpu_code.hex` file.
 
 ### Compiling
-If the NetCDF header files are installed, `make` should be sufficient. Depending on the distribution of the NetCDF package, it might be required to use `CC=mpicc` for the compilation. The code has been tested with the Raspberry Pi 2.
+If the NetCDF header files are installed, `make` should be sufficient. Depending on the distribution of the NetCDF package, it might be required to use `CC=mpicc` for the compilation. The GPU code can be compiled with `vc4asm -C gpu_code.hex gpu_code.qasm`. The code has been tested with the Raspberry Pi 2.
+
+### Running
+The program must be run as root as direct access to physical memory is required.
 
 ### Performance
 Running times for a resolution of 1920 x 1080 in the range of `-2,2;-1.125,1.125` with 100,000 iterations and a maximum distance of 2 (implies that `maxValue` is 4). The Raspberry Pi is not overclocked, i.e. the ARM core is clocked at 900 MHz and the GPU at 250 MHz.
