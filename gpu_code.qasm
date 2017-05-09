@@ -167,7 +167,7 @@ mov rb14, 64
 
 # Compute VPM configuration. We always write one horizontal 32-bit line at the
 # offset indicated by rb30=QpuId*VPM_ROWS.
-mov r1, vpm_setup(1, 1, h32(0, 0))
+mov r1, vpm_setup(1, 1, h32(0))
 or ra26, rb30, r1; mov r3, unif
 # r3 = blockCount, later moved to rb13
 
